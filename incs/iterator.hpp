@@ -380,6 +380,56 @@ namespace ft
 		return rhs.base() - lhs.base();
 	};
 
+	template<typename IteratorL, typename IteratorR>
+	bool operator==(const reverse_iterator<IteratorL>& x,
+			const reverse_iterator<IteratorR>& y)
+	{ 
+		return x.base() == y.base();
+	}
+
+	template<typename IteratorL, typename IteratorR>
+	bool operator<(const reverse_iterator<IteratorL>& x,
+			const reverse_iterator<IteratorR>& y)
+	{ 
+		return y.base() < x.base();
+	}
+
+	template<typename IteratorL, typename IteratorR>
+	bool operator!=(const reverse_iterator<IteratorL>& x,
+			const reverse_iterator<IteratorR>& y)
+	{
+		return !(x == y);
+	}
+
+	template<typename IteratorL, typename IteratorR>
+	bool operator>(const reverse_iterator<IteratorL>& x,
+			const reverse_iterator<IteratorR>& y)
+	{
+		return y < x;
+	}
+
+	template<typename IteratorL, typename IteratorR>
+	bool operator<=(const reverse_iterator<IteratorL>& x,
+			const reverse_iterator<IteratorR>& y)
+	{
+		return !(y < x);
+	}
+
+	template<typename IteratorL, typename IteratorR>
+	bool operator>=(const reverse_iterator<IteratorL>& x,
+			const reverse_iterator<IteratorR>& y)
+	{ 
+		return !(x < y);
+	}
+
+	template<typename IteratorL, typename IteratorR>
+	typename reverse_iterator<IteratorL>::difference_type
+	operator-(const reverse_iterator<IteratorL>& x,
+			const reverse_iterator<IteratorR>& y)
+	{ 
+		return y.base() - x.base();
+	}
+
 	//////////////////////////back_insert_iterator//////////////////////////
 
 	template <class Container>
@@ -581,70 +631,23 @@ namespace ft
 	///////////////////////////////Functions///////////////////////////////
 	// Functions 테스트 필요
 
-	namespace detail {
-		template<class It>
-		void do_advance(It& it, typename ft::iterator_traits<It>::difference_type n,
-						ft::input_iterator_tag)
-		{
-			while (n > 0) {
-				--n;
-				++it;
-			}
-		}
-
-		template<class It>
-		void do_advance(It& it, typename ft::iterator_traits<It>::difference_type n,
-						ft::bidirectional_iterator_tag)
-		{
-			while (n > 0) {
-				--n;
-				++it;
-			}
-			while (n < 0) {
-				++n;
-				--it;
-			}
-		}
-	
-		template<class It>
-		void do_advance(It& it, typename ft::iterator_traits<It>::difference_type n,
-						ft::random_access_iterator_tag)
-		{
-			it += n;
-		}
-
-		template<class It>
-		typename ft::iterator_traits<It>::difference_type 
-			do_distance(It first, It last, ft::input_iterator_tag)
-		{
-			typename ft::iterator_traits<It>::difference_type result = 0;
-			while (first != last) {
-				++first;
-				++result;
-			}
-			return result;
-		}
-		
-		template<class It>
-		typename ft::iterator_traits<It>::difference_type 
-			do_distance(It first, It last, ft::random_access_iterator_tag)
-		{
-			return last - first;
-		}
-	}
-
 	template<class It, class Distance>
 	void advance(It& it, Distance n)
 	{
-		detail::do_advance(it, typename ft::iterator_traits<It>::difference_type(n),
-						typename ft::iterator_traits<It>::iterator_category());
+		it += n;
 	}
 
-	template<class It>
-	typename ft::iterator_traits<It>::difference_type distance(It first, It last)
+	template<class InputIterator>
+	typename ft::iterator_traits<InputIterator>::difference_type
+		distance (InputIterator first, InputIterator last)
 	{
-		return detail::do_distance(first, last,
-								typename ft::iterator_traits<It>::iterator_category());
+		typename ft::iterator_traits<InputIterator>::difference_type rtn = 0;
+		while (first != last)
+		{
+			first++;
+			rtn++;
+		}
+		return (rtn);
 	}
 
 	template< class Container >

@@ -6,7 +6,7 @@
 /*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 01:57:42 by dohelee           #+#    #+#             */
-/*   Updated: 2021/10/24 02:21:19 by dohelee          ###   ########.fr       */
+/*   Updated: 2021/10/24 08:12:29 by dohelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ namespace ft
 				finish(NULL),
 				end_of_storage(NULL)
 			{
-				difference_type n = ft::distance(first, last);
+				size_type n = ft::distance(first, last);
 				this->start = this->alloc.allocate(n);
 				this->end_of_storage = this->start + n;
 				this->finish = this->start;
@@ -107,15 +107,12 @@ namespace ft
 			{
 				if (this != &x)
 				{
-					// this->clear();
-					// this->insert(this->end(), x.begin(), x.end());
 					this->alloc = x.alloc;
-					this->start = this->alloc.allocate(x.finish - x.start);
+					this->start = this->alloc.allocate(x.capacity());
 					this->finish = this->start;
 					pointer tmp = x.start;
 					while (tmp != x.finish)
 						this->alloc.construct(this->finish++, *tmp++);
-					//this->finish = std::uninitialized_copy(x.start, x.finish, this->start);
 					this->end_of_storage = this->start + x.capacity();
 				}
 				return (*this); 
@@ -205,6 +202,8 @@ namespace ft
 			{
 				if (this->max_size() < n)
 					throw (std::length_error("vector::reserve"));
+				else if (this->capacity() > n)
+					return ;
 				else
 				{
 					pointer prev_start = this->start;
@@ -280,13 +279,13 @@ namespace ft
 					, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL)
 			{
 				this->clear();
-				pointer p_first = &(*first);
-				pointer p_last = &(*last);
 				size_type dist = ft::distance(first, last);
 				if (this->capacity() >= dist)
 				{
-					while(p_first != p_last)
-						this->alloc.construct(this->finish++, *p_first++);
+					while (dist--)
+					{
+						this->alloc.construct(this->finish++, *first++);
+					}
 				}
 				else
 				{
@@ -294,8 +293,8 @@ namespace ft
 					pointer new_finish = new_start;
 					pointer new_eos = new_start + dist;
 
-					while(p_first != p_last)
-						this->alloc.construct(new_finish++, *p_first++);
+					while(dist--)
+						this->alloc.construct(new_finish++, *first++);
 					
 					this->alloc.deallocate(this->start, this->capacity());
 					this->start = new_start;
@@ -322,9 +321,8 @@ namespace ft
 				{
 					this->alloc.deallocate(this->start, this->capacity());
 					this->start = this->alloc.allocate(n);
-					this->finish = this->end_of_storage;
+					this->finish = this->start;
 					this->end_of_storage = this->start + n;
-					
 					while (n)
 					{
 						this->alloc.construct(this->finish++, val);
@@ -372,7 +370,7 @@ namespace ft
 				size_type dist = ft::distance(first, last);
 
 				for (int i = 0; i < this->finish - p_last; i++)
-					this->alloc.construct(p_first + i, *(p_last + i));
+					this->alloc.construct(p_first + i, *(last + i));
 
 				for (size_type i = 0; i < dist ; i++)
 					this->alloc.destroy(p_first + (this->finish - p_last) + i);
@@ -433,7 +431,7 @@ namespace ft
 					pointer new_start = this->alloc.allocate(next_capacity);
 					pointer new_finish = new_start + this->size() + 1;
 					pointer new_eos = new_start + next_capacity;
-
+					
 					size_type i = 0;
 					pointer tmp = prev_start;
 					while (i < pos_len)
@@ -442,9 +440,11 @@ namespace ft
 						i++;
 					}
 					this->alloc.construct(new_start + i, val);
-					for (size_type i = 0; i <= this->size() - pos_len; i++)
+					for (size_type i = 1; i <= this->size() - pos_len; i++)
+					{
 						this->alloc.construct(new_finish - i, *(prev_finish - i));
-						
+					}
+					
 					this->start = new_start;
 					this->finish = new_finish;
 					this->end_of_storage = new_eos;
@@ -635,9 +635,8 @@ namespace ft
 		y = tmp;
 	}	
 	
-	//Template specializations....
-	//구현해야하나....
-
+	//Template specializations
+	//...
 }
 
 #endif
