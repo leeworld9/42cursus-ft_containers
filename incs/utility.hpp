@@ -6,7 +6,7 @@
 /*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/16 08:40:31 by dohelee           #+#    #+#             */
-/*   Updated: 2021/10/16 09:25:39 by dohelee          ###   ########.fr       */
+/*   Updated: 2021/10/25 13:20:11 by dohelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 
 namespace ft
 {
-	template <class T1, class T2> struct pair
+	template <class T1, class T2>
+	struct pair
 	{
 		public:
 			typedef T1 first_type;

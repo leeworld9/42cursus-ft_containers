@@ -6,69 +6,81 @@
 /*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/16 02:28:47 by dohelee           #+#    #+#             */
-/*   Updated: 2021/10/24 02:17:14 by dohelee          ###   ########.fr       */
+/*   Updated: 2021/10/31 08:36:26 by dohelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+//#include "../incs/map.hpp"
 #include "../incs/vector.hpp"
 #include "../incs/iterator.hpp"
 #include <vector>
 #include <map>
 #include <stack>
 #include <iterator>
-#include <typeinfo>     // typeid
-#include <iostream>     // std::cout
+#include <typeinfo> 
+#include <iostream>
+#include "../incs/etc/binary_search_tree.hpp"
+#include "../incs/utility.hpp"
 
 int main()
 {
-	int myarray [] = { 501,502,503 };
+	// STL과 속도 비교하는 테스트 케이스 필요
 
-	std::vector<int> first;
-	std::vector<int> second (4, 75);
-	std::vector<int> third (second.begin(),second.end());
-	std::vector<int> fourth (third);
+	ft::binary_search_tree<ft::pair<std::string, int> > bst;
 
-	//third.reserve(10);
-	std::vector<int>::iterator its = third.begin();
-	its++;
-	its++;
-	std::cout << third.capacity() << std::endl;
-	third.insert(its, myarray, myarray+3);
+	bst.insertPair(ft::make_pair("a", 0));
+	bst.insertPair(ft::make_pair("d", 1));
+	bst.insertPair(ft::make_pair("c", 2));
+	bst.insertPair(ft::make_pair("g", 3));
+	bst.insertPair(ft::make_pair("e", 4));
+	bst.insertPair(ft::make_pair("f", 5));
+	bst.insertPair(ft::make_pair("b", 6));
+	bst.insertPair(ft::make_pair("h", 7));
 
-	std::cout <<  third.capacity() << std::endl;
+	ft::binary_search_tree<ft::pair<std::string, int> >::iterator it(bst.root_node);
 
-	its = third.begin();
-	third.assign(5, 10);
+	//이터레이터의 문제가 있음 (++ , -- 다시 확인)
 
-	for (std::vector<int>::iterator i = third.begin(); i < third.end() ; i++)
+	//begin , end 포함해서 9일텐데... 음...
+	for (int i = 0; i < 9 ; i++)
 	{
-		std::cout << *i << std::endl;
-		std::cout << &i << std::endl;
+		std::cout << it.node->value.first << ", " << it.node->value.second << std::endl;
+		it++;
+	}
+	std::cout << "---------------" << std::endl;
+	for (int i = 0; i < 9 ; i++)
+	{
+		std::cout << it.node->value.first << ", " << it.node->value.second << std::endl;
+		it--;
 	}
 
-	std::cout << "-------------------" << std::endl;
+	std::map<char,int> mymap;
 
-	ft::vector<int> ft_first;
-	ft::vector<int> ft_second (4, 75);
-	ft::vector<int> ft_third (ft_second.begin(), ft_second.end());
-	ft::vector<int> ft_fourth (ft_third);
+	mymap['b'] = 100;
+	mymap['c'] = 300;
+	mymap['a'] = 200;
 
-	//ft_third.reserve(10);
-	ft::vector<int>::iterator ft_its = ft_third.begin();
-	ft_its++;
-	ft_its++;
-	std::cout << ft_third.capacity() << std::endl;
-	ft_third.insert(ft_its, myarray, myarray+3);
-	std::cout <<  ft_third.capacity() << std::endl;
 
-	ft_its = ft_third.begin();
-	ft_third.assign(5, 10);
+	std::cout << "---------------" << std::endl;
 	
-	for (ft::vector<int>::iterator i = ft_third.begin() ; i < ft_third.end() ; i++)
-	{
-		std::cout << *i << std::endl;
-		std::cout << &i << std::endl;
-	}
+	// show content:
+	std::map<char,int>::iterator mit = mymap.begin();
+	mit--;
+	std::cout << mit->first << " => " << mit->second << '\n';
+	mit++;
+	std::cout << mit->first << " => " << mit->second << '\n';
+	mit++;
+	std::cout << mit->first << " => " << mit->second << '\n';
+	mit++;
+	std::cout << mit->first << " => " << mit->second << '\n';
+	mit++;
+	std::cout << mit->first << " => " << mit->second << '\n';
+	mit++;
+	std::cout << mit->first << " => " << mit->second << '\n';
+	mit++;
+	std::cout << mit->first << " => " << mit->second << '\n';
+	mit++;
+	std::cout << mit->first << " => " << mit->second << '\n';
 
 	return 0;
 

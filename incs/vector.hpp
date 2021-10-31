@@ -6,7 +6,7 @@
 /*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 01:57:42 by dohelee           #+#    #+#             */
-/*   Updated: 2021/10/24 08:12:29 by dohelee          ###   ########.fr       */
+/*   Updated: 2021/10/26 05:35:17 by dohelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ namespace ft
 			{
 				if (this != &x)
 				{
-					this->alloc = x.alloc;
+					this->alloc = allocator_type();
 					this->start = this->alloc.allocate(x.capacity());
 					this->finish = this->start;
 					pointer tmp = x.start;
