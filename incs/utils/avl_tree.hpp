@@ -2,272 +2,523 @@
 # define AVL_TREE_HPP
 
 #include <iostream>
+#include "./avl_tree_iterator.hpp"
+#include "./utility.hpp"
 
 namespace ft
 {
     //reference1 : https://yoongrammer.tistory.com/72
     //reference2 : https://doublesprogramming.tistory.com/237
-    typedef struct  s_node
+
+    template <typename T>
+    struct Node
     {
-        int             data; // pair로 변경필요 (그에 맞춰서 아래 비교연산자를 Comapare 함수로 변환 필요)
-        struct  s_node  *left;
-        struct  s_node  *right;
-        //나중에 이터레이터 사용하려면 parent 필요할꺼 같다.
-        int             height;
-    }                   t_node;
-    
-    int max_height(t_node *a, t_node *b)
-    {
-        if (a == NULL && b == NULL)
-            return 0;
-        else if (a == NULL && b != NULL)
-            return b->height;
-        else if (a != NULL && b == NULL)
-            return a->height;
-        else
-            return (a->height > b->height) ? a->height : b->height;
-    }
+        public :
+            typedef T value_type;
 
-    t_node* new_node(int key)
-    {
-        t_node *temp = new t_node;
+            value_type      value;
+            Node* left;
+            Node* right;
+            Node* parent;
+            int height;
 
-        temp->data = key;
-        temp->left = NULL;
-        temp->right = NULL;
-        temp->height = 1;
-        return temp;
-    }
+			Node ()
+			:
+				value(),
+				left(NULL),
+				right(NULL),
+                parent(NULL),
+                height(1)
+			{}
+			
+			Node (const value_type& val)
+			:
+				value(val),
+				left(NULL),
+				right(NULL),
+                parent(NULL),
+                height(1)
+			{}
 
-    t_node *leftRotate (t_node *z)
-    {
-        t_node *y = z->right;
-        t_node *T2 = y->left;
-
-        // left 회전 수행
-        y->left = z;
-        z->right = T2;
-
-        // 노드 높이 갱신
-        z->height = 1 + max_height(z->left, z->right);
-        y->height = 1 + max_height(y->left, y->right);
-
-        // 새로운 루트 노드 y를 반환  
-        return y;
-    }
-
-    t_node *rightRotate (t_node *z) {
-        t_node *y = z->left;
-        t_node *T2 = y->right;
-
-        // right 회전 수행
-        y->right = z;
-        z->left = T2;
-
-        // 노드 높이 갱신
-        z->height = 1 + max_height(z->left, z->right);
-        y->height = 1 + max_height(y->left, y->right);
-
-        // 새로운 루트 노드 y를 반환  
-        return y;
-    }
-
-    // BF(BalanceFactor)값을 가져오는 함수.
-    int getBalanceFactor(t_node *n)
-    {
-        if (n == NULL)
-            return 0;
-        else
-        {
-            int left_height = (n->left != NULL) ? n->left->height : 0;
-            int right_height = (n->right != NULL) ? n->right->height : 0;
-            return left_height - right_height;
-        }
-    }
-
-    // 트리의 높이 균형을 유지하는 함수 (insert)
-    // 4가지 케이스를 가지고 rotate를 수행함.
-    t_node* insert_rebalance(t_node* node, int key)
-    {
-        int bFactor = getBalanceFactor(node);
-        
-        // LL Case
-        if (bFactor > 1 && key < node->left->data)
-            return rightRotate(node);
-        // RR Case
-        if (bFactor < -1 && key > node->right->data)
-            return leftRotate(node);
-        // LR Case
-        if (bFactor > 1 && key > node->left->data){
-            node->left = leftRotate(node->left);
-            return rightRotate(node);
-        }
-        // RL Case
-        if (bFactor < -1 && key < node->right->data){
-            node->right = rightRotate(node->right);
-            return leftRotate(node);
-        }
-
-        return node;
-    }
-
-    // 삽입 함수.
-    t_node* insert(t_node* root, int key) {
-        // 삽입 수행
-        if (root == NULL)
-            return new_node(key);
-        if (key > root->data)
-            root->right = insert(root->right, key);
-        else if (key < root->data)
-            root->left = insert(root->left, key);
-        else
-            return root;
-
-        // 노드 높이 갱신
-        root->height = 1 + max_height(root->left, root->right);
-
-        // 노드 균형 유지  
-        root = insert_rebalance(root, key);
-        
-        return root;
-    }
-
-    // 트리의 높이 균형을 유지하는 함수 (remove)
-    t_node* remove_rebalance(t_node* node)
-    {
-        int bFactor = getBalanceFactor(node);
-        
-        // LL Case OR LR Case
-        if (bFactor > 1)
-        {
-            if (node->data > node->left->data)
-                node->left = leftRotate(node->left);
-            return rightRotate(node);
-        }
-        // RR Case OR RL Case
-        if (bFactor < -1)
-        {
-            if(node->data > node->right->data)
-                node->right = rightRotate(node->right);
-            return leftRotate(node);
-        }
-
-        return node;
-    }
-
-    // 자식 노드 중에서 가장 노드 조회
-    t_node *max_node(t_node* node)
-    {
-        if (node == NULL)
-            return node;
-        if (node->right != NULL)
-            return max_node(node->right);
-        else
-            return node;
-    }
-
-    // 제거 함수
-    t_node* remove (t_node* root, int key)
-    {
-        if (root == NULL)
-            return root;
-        if (key > root->data)
-            root->right = remove(root->right, key);
-        else if (key < root->data)
-            root->left = remove(root->left, key);
-        else
-        {
-            //자식노드가 없을경우
-            if (root->left == NULL && root->right == NULL )
-                return NULL;
-            else if (root->left == NULL) // 자식노드가 1개일 경우 (right) 
+            Node (const Node* copy)
             {
-                t_node *tmp = root->right;
-                root = NULL;
+                *this = copy;
+            }
+
+			Node &operator=(const Node& nd)
+			{
+				if (*this != &nd)
+				{
+                    this->value = nd.value;
+                    this->left = nd.left;
+                    this->right = nd.right;
+                    this->parent = nd.parent;
+                    this->height = nd.height;
+                }
+				return (*this);
+			}
+            
+            virtual ~Node() {}
+	};
+
+    template <class T, class Node = ft::Node<T>,
+			class Node_Alloc = std::allocator<Node> >
+	class avl_tree
+	{
+		public :
+			typedef avl_tree  self;
+			typedef self&   self_reference;
+			typedef T   value_type;
+			typedef Node node_type;
+			typedef Node*  node_pointer;
+			typedef Node_Alloc  node_alloc;
+			typedef typename ft::avl_tree_iterator<Node> iterator;
+			typedef typename ft::avl_tree_const_iterator<Node> const_iterator;
+			typedef size_t size_type;
+
+			avl_tree (const node_alloc& alloc = node_alloc())
+			: alloc(alloc)
+			{
+				this->root = NULL;
+                this->super_root = this->alloc.allocate(1);
+				this->alloc.construct(this->super_root, Node());
+                (this->super_root)->parent = NULL;
+                this->parent = this->super_root;
+			}
+
+            avl_tree(const avl_tree& copy)
+            {
+                *this = copy;
+            }
+
+		    avl_tree& operator= (const avl_tree& at)
+            {
+                if (this != &at)
+				{
+                    this->root = at.root;
+                    this->alloc = at.alloc;
+                    this->super_root = at.super_root;
+                    this->parent = at.parent;
+                }
+				return (*this);
+            }
+
+			virtual ~avl_tree ()
+			{
+				//작성필요
+			}
+
+            int max_height(node_pointer a, node_pointer b)
+            {
+                if (a == NULL && b == NULL)
+                    return 0;
+                else if (a == NULL && b != NULL)
+                    return b->height;
+                else if (a != NULL && b == NULL)
+                    return a->height;
+                else
+                    return (a->height > b->height) ? a->height : b->height;
+            }
+
+            node_pointer new_node(value_type key)
+            {
+                node_pointer tmp = this->alloc.allocate(1);
+				this->alloc.construct(tmp, Node(key));
+                tmp->parent = this->parent;
+                if (tmp->parent == this->super_root) // super_root->left == root
+                    (this->super_root)->left = tmp;
+                this->parent = NULL; // 임시 공간 제거
                 return tmp;
             }
-            else if (root->right == NULL) // 자식노드가 1개일 경우 (left) 
-            {
-                t_node *tmp = root->left;
-                root = NULL;
-                return tmp;
-            }
-            else // 자식노드가 2개인 경우
-            {
-                // 왼쪽 자식 노드 중 가장 큰 노드의 값(data)으로 변환 후 자식 노드들 중에서 해당 노드 제거
-                t_node *tmp = max_node(root->left);
-                root->data = tmp->data;
-                root->left = remove(root->left, tmp->data);
-            }
-        }
 
-        // 노드 높이 갱신
-        root->height = 1 + max_height(root->left, root->right);
+            node_pointer leftRotate (node_pointer z)
+            {
+                node_pointer y = z->right;
+                node_pointer T2 = y->left;
 
-        // 노드 균형 유지  
-        root = remove_rebalance(root);
+                // left 회전 수행
+                y->left = z;
+                z->right = T2;
+
+                // parent 주소 변경
+                y->parent = z->parent;
+                z->parent = y;
+                if (T2 != NULL)
+                    T2->parent = z;
+
+                // 변환 후 y가 root_node가 됬을 경우 super_root->left 주소 수정
+                if (y->parent == this->super_root)
+                    (this->super_root)->left = y;
+
+                // 노드 높이 갱신
+                z->height = 1 + max_height(z->left, z->right);
+                y->height = 1 + max_height(y->left, y->right);
+
+                // 새로운 루트 노드 y를 반환  
+                return y;
+            }
+
+            node_pointer rightRotate (node_pointer z) {
+                node_pointer y = z->left;
+                node_pointer T2 = y->right;
+
+                // right 회전 수행
+                y->right = z;
+                z->left = T2;
+
+                // parent 주소 변경
+                y->parent = z->parent;
+                z->parent = y;
+                if (T2 != NULL)
+                    T2->parent = z;
+
+                // 변환 후 y가 root_node가 됬을 경우 super_root->left 주소 수정
+                if (y->parent == this->super_root)
+                    (this->super_root)->left = y;
+
+                // 노드 높이 갱신
+                z->height = 1 + max_height(z->left, z->right);
+                y->height = 1 + max_height(y->left, y->right);
+
+                // 새로운 루트 노드 y를 반환  
+                return y;
+            }
+
+            // BF(BalanceFactor)값을 가져오는 함수.
+            int getBalanceFactor(node_pointer n)
+            {
+                if (n == NULL)
+                    return 0;
+                else
+                {
+                    int left_height = (n->left != NULL) ? n->left->height: 0;
+                    int right_height = (n->right != NULL) ? n->right->height : 0;
+                    return left_height - right_height;
+                }
+            }
+
+            // 트리의 높이 균형을 유지하는 함수 (insert)
+            // 4가지 케이스를 가지고 rotate를 수행함.
+            node_pointer insert_rebalance(node_pointer node, value_type key)
+            {
+                int bFactor = getBalanceFactor(node);
+
+                // LL Case
+                if (bFactor > 1 && key.first < node->left->value.first)
+                    return rightRotate(node);
+                // RR Case
+                if (bFactor < -1 && key.first > node->right->value.first)
+                    return leftRotate(node);
+                // LR Case
+                if (bFactor > 1 && key.first > node->left->value.first)
+                {
+                    node->left = leftRotate(node->left);
+                    return rightRotate(node);
+                }
+                // RL Case
+                if (bFactor < -1 && key.first < node->right->value.first)
+                {
+                    node->right = rightRotate(node->right);
+                    return leftRotate(node);
+                }
+
+                return node;
+            }
+
+            // 삽입 함수.
+            node_pointer insert(node_pointer root, value_type key)
+            {
+                // 삽입 수행
+                if (root == NULL)
+                    return new_node(key);
+                if (key.first > root->value.first)
+                {
+                    this->parent = root; // 임시 저장
+                    root->right = insert(root->right, key);
+                } 
+                else if (key.first < root->value.first)
+                {
+                    this->parent = root; // 임시 저장
+                    root->left = insert(root->left, key);
+                }   
+                else
+                    return root;
+
+                // 노드 높이 갱신
+                root->height = 1 + max_height(root->left, root->right);
+
+                // 노드 균형 유지  
+                root = insert_rebalance(root, key);
+                
+                return root;
+            }
+
+            // 트리의 높이 균형을 유지하는 함수 (remove)
+            node_pointer remove_rebalance(node_pointer node)
+            {
+                int bFactor = getBalanceFactor(node);
+
+                // LL Case OR LR Case
+                if (bFactor > 1)
+                {
+                    if (getBalanceFactor(node->left) < 0)
+                        node->left = leftRotate(node->left);
+                    return rightRotate(node);
+                }
+                // RR Case OR RL Case
+                if (bFactor < -1)
+                {
+                    if (getBalanceFactor(node->right) > 0)
+                        node->right = rightRotate(node->right);
+                    return leftRotate(node);
+                }
+
+                return node;
+            }
+
+            // 자식 노드 중에서 가장 작은 노드 조회
+            node_pointer min_node(node_pointer node)
+            {
+                if (node == NULL)
+                    return node;
+                if (node->left != NULL)
+                    return min_node(node->left);
+                else
+                    return node;
+            }
+
+             // 자식 노드 중에서 가장 작은 노드 조회 (const)
+            node_pointer min_node(node_pointer node) const
+            {
+                if (node == NULL)
+                    return node;
+                if (node->left != NULL)
+                    return min_node(node->left);
+                else
+                    return node;
+            }
+
+            // 자식 노드 중에서 가장 큰 노드 조회
+            node_pointer max_node(node_pointer node)
+            {
+                if (node == NULL)
+                    return node;
+                if (node->right != NULL)
+                    return max_node(node->right);
+                else
+                    return node;
+            }
+
+            // 자식 노드 중에서 가장 큰 노드 조회 (const)
+            node_pointer max_node(node_pointer node) const
+            {
+                if (node == NULL)
+                    return node;
+                if (node->right != NULL)
+                    return max_node(node->right);
+                else
+                    return node;
+            }
+
+            // 제거 함수
+            node_pointer remove(node_pointer root, typename value_type::first_type key)
+            {
+                if (root == NULL)
+                    return root;
+                if (key > root->value.first)
+                {
+                    this->parent = root;
+                    root->right = remove(root->right, key);
+                }
+                else if (key < root->value.first)
+                {
+                    this->parent = root;
+                    root->left = remove(root->left, key);
+                }
+                else
+                {
+                    //자식노드가 없을경우
+                    if (root->left == NULL && root->right == NULL)
+                    {
+                        //현재 노드가 root일 경우
+                        if (root->parent == this->super_root)
+                        {
+                            (this->super_root)->left = NULL;
+                            // 초기 insert를 위한 셋팅
+                            this->parent = this->super_root;
+                        }
+                        else
+                        {
+                            this->parent = NULL; // 임시 공간 제거
+                        }
+                        alloc.deallocate(root, 1);
+                        root = NULL;
+                        return NULL;
+                    }
+                    else if (root->left == NULL) // 자식노드가 1개일 경우 (right) 
+                    {
+                        node_pointer tmp = root->right;
+                        //현재 노드가 root일 경우 (이 경우 재귀가 작동하지 않아서 추가적으로 처리가 필요)
+                        if (root->parent == this->super_root)
+                        {
+                            (this->super_root)->left = tmp;
+                            tmp->parent = this->super_root;
+                        }
+                        else
+                        {
+                            tmp->parent = (this->parent);
+                            this->parent = NULL; // 임시 공간 제거
+                        }
+                        alloc.deallocate(root, 1);
+                        root = NULL;
+                        return tmp;
+                    }
+                    else if (root->right == NULL) // 자식노드가 1개일 경우 (left) 
+                    {
+                        node_pointer tmp = root->left;
+                         //현재 노드가 root일 경우 (이 경우 재귀가 작동하지 않아서 추가적으로 처리가 필요)
+                        if (root->parent == this->super_root)
+                        {
+                            (this->super_root)->left = tmp;
+                            tmp->parent = this->super_root;
+                        } 
+                        else
+                        {
+                            tmp->parent = this->parent;
+                            this->parent = NULL; // 임시 공간 제거
+                        }
+                        alloc.deallocate(root, 1);
+                        root = NULL;
+                        return tmp;
+                    }
+                    else // 자식노드가 2개인 경우
+                    {
+                        // 왼쪽 자식 노드 중 가장 큰 노드의 값(value)으로 변환 후 자식 노드들 중에서 해당 노드 제거
+                        value_copy_node(root, max_node(root->left)->value);
+                        this->parent = root;
+                        root->left = remove(root->left, root->value.first);
+                    }
+                }
+
+                // 노드 높이 갱신
+                root->height = 1 + max_height(root->left, root->right);
+
+                // 노드 균형 유지  
+                root = remove_rebalance(root);
+                
+                return root;
+            }
+
+            // value.first가 상수여서 operator= 에서 초기화를 못하기떄문에 새롭게 할당해서 옮긴다.
+            // 기존 노드 주소는 그대로 사용하여야함(즉 deallocate 하면 안됨), 바뀌면 이터레이터 조작에 문제가 생김
+            void value_copy_node(node_pointer src, value_type value)
+            {
+                node_pointer left = src->left;
+                node_pointer right = src->right;
+                node_pointer parent = src->parent;
+                int height = src->height;
+
+                this->alloc.construct(src, Node(value));
+                src->left = left;
+                src->right = right;
+                src->parent = parent;
+                src->height = height;
+
+
+            }
+
+            /*
+                아래 부터는 코드 테스트를 위한 디버깅용 함수들
+            */
+
+            // 전위 순회 Current - Left - Right
+            void preorder(node_pointer current)
+            {
+                if (current != NULL) 
+                {
+                    std::cout << current->value.first << " ";
+                    preorder(current->left);
+                    preorder(current->right);
+                }
+            }
         
-        return root;
-    }
-
-    // 전위 순회 Current - Left - Right
-    void preorder(t_node* current)
-    {
-        if (current != NULL) 
-        {
-            std::cout << current->data << " ";
-            preorder(current->left);
-            preorder(current->right);
-        }
-    }
- 
-    // 중위 순회 Left - Current - Right
-    void inorder(t_node* current)
-    {
-        if (current != NULL)
-        {
-            inorder(current->left);
-            std::cout << current->data << " ";
-            inorder(current->right);
-        }
-    }
- 
-    // 후위 순회 Left - Right - Current
-    void postorder(t_node* current)
-    {
-        if (current != NULL) 
-        {
-            postorder(current->left);
-            postorder(current->right);
-            std::cout << current->data << " ";
-        }
-    }
-
-    // 트리 출력 (루트가 왼쪽부터 출력됨, 디버깅용)
-    void display(t_node *root, t_node *node, int level)
-    {
-        int i;
-        // 현재 트리가 비어있지 않은 경우입니다.
-        if(node != NULL)
-        {
-            display(root, node->right, level + 1);
-            std::cout << std::endl;
-            // 현재 루트 노드인 경우입니다.
-            if(node == root)
+            // 중위 순회 Left - Current - Right
+            void inorder(node_pointer current)
             {
-                std::cout << "Root -> ";
+                if (current != NULL)
+                {
+                    inorder(current->left);
+                    std::cout << current->value.first << " ";
+                    inorder(current->right);
+                }
             }
-            // i가 현레벨보다 낮고 루트가 아닌 경우일 때까지 입니다.
-            for(i = 0; i < level && node != root; i++)
+        
+            // 후위 순회 Left - Right - Current
+            void postorder(node_pointer current)
             {
-                std::cout << "        ";
+                if (current != NULL) 
+                {
+                    postorder(current->left);
+                    postorder(current->right);
+                    std::cout << current->value.first << " ";
+                }
             }
-            // 자신의 위치에 데이터를 출력합니다.
-            std::cout << node->data;
-            // 왼쪽 노드도 출력해줍니다.
-            display(root, node->left, level + 1);
-        }
-    }
+
+            // 트리 출력 (루트가 왼쪽부터 출력됨, 디버깅용)
+            void display(node_pointer root, node_pointer node, int level) //const
+            {
+                int i;
+                // 현재 트리가 비어있지 않은 경우입니다.
+                if(node != NULL)
+                {
+                    display(root, node->right, level + 1);
+                    std::cout << std::endl;
+                    // 현재 루트 노드인 경우입니다.
+                    if(node == root)
+                    {
+                        std::cout << "Root -> ";
+                    }
+                    // i가 현레벨보다 낮고 루트가 아닌 경우일 때까지 입니다.
+                    for(i = 0; i < level && node != root; i++)
+                    {
+                        std::cout << "        ";
+                    }
+                    // 자신의 위치에 데이터를 출력합니다.
+                    std::cout << node->value.first;
+
+                    // 부모 노드 출력
+                    if (node->parent == this->super_root)
+                        std::cout << "(parent : super_root)" ;
+                    else if (node->parent != NULL)
+                        std::cout << "(parent : " << node->parent->value.first << ")" ;
+                    else
+                        std::cout << "(parent : NULL)" ;
+
+                    //자식 노드 노드 출력
+                    if (node->right == NULL)
+                        std::cout << "(right : NULL, " ;
+                    else
+                        std::cout << "(right : " << node->right->value.first << ", " ;
+                    if (node->left == NULL)
+                        std::cout << "left : NULL)" ;
+                    else
+                        std::cout << "left : "  << node->left->value.first << ")" ;
+
+                    // height 와 bf 출력
+                    // std::cout << "(h: "<< node->height << ", bf: " << getBalanceFactor(node) << ")";
+                    
+                    // 왼쪽 노드도 출력해줍니다.
+                    display(root, node->left, level + 1);
+                }
+            }
+
+			//private:
+				node_pointer root; // insert 메소드의 리턴값(root node) 저장용도
+                node_pointer super_root;
+                node_pointer parent;
+				node_alloc alloc;
+	};
+
 };
 
 #endif
