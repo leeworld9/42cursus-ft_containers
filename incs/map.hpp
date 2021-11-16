@@ -52,8 +52,8 @@ namespace ft
 			typedef typename allocator_type::const_reference const_reference;
 			typedef typename allocator_type::pointer pointer;
 			typedef typename allocator_type::const_pointer const_pointer;
-			typedef	typename ft::avl_tree<value_type>::iterator	iterator;
-			typedef	typename ft::avl_tree<value_type>::const_iterator	const_iterator;
+			typedef	typename ft::avl_tree<value_type, key_compare>::iterator	iterator;
+			typedef	typename ft::avl_tree<value_type, key_compare>::const_iterator	const_iterator;
 			typedef	typename ft::reverse_iterator<iterator>	reverse_iterator;
 			typedef	typename ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 			typedef typename ft::iterator_traits<iterator>::difference_type	difference_type;
@@ -101,7 +101,7 @@ namespace ft
 				{
 					this->alloc = allocator_type();
 					this->comp = Compare();
-                    this->avl_tree = ft::avl_tree<value_type>();
+                    this->avl_tree = ft::avl_tree<value_type, key_compare>();
                     this->root = NULL;
                     this->insert(x.begin(), x.end());
                 }
@@ -166,11 +166,15 @@ namespace ft
 
             size_type size() const
             {
+                //this->avl_tree.display(root, root, 1);
+                //std::cout << std::endl;
+
                 int cnt = 0;
                 const_iterator it = this->begin();
 
                 while (it != this->end())
                 {
+                    //std::cout << "test : " << (*it).first << std::endl;
                     cnt++;
                     it++;
                 }
@@ -194,6 +198,9 @@ namespace ft
 			// (1) insert : single element	
 			pair<iterator, bool> insert (const value_type& val)
 			{
+                //this->avl_tree.display(root, root, 1);
+                //std::cout << std::endl;
+                
                 iterator find = this->find(val.first);
 
                 if (find != this->end())
@@ -273,7 +280,7 @@ namespace ft
             
             void swap (map& x)
             {
-                ft::avl_tree<value_type>    tmp_avl_tree = this->avl_tree;
+                ft::avl_tree<value_type, key_compare>    tmp_avl_tree = this->avl_tree;
                 ft::Node<value_type>       *tmp_root = this->root;
 
                 this->avl_tree = x.avl_tree;
@@ -303,7 +310,7 @@ namespace ft
             iterator find (const key_type& k)
             {
                 iterator it = this->begin();
-
+               
                 if (it == NULL)
                     return this->end();
                 else
@@ -419,7 +426,7 @@ namespace ft
 		private:
 			allocator_type              alloc;
 			Compare                     comp;
-			ft::avl_tree<value_type>    avl_tree; // 템플릿 인자를 위해 선언
+			ft::avl_tree<value_type, key_compare>    avl_tree; // 템플릿 인자를 위해 선언
             ft::Node<value_type>       *root;
 	};
 

@@ -61,7 +61,7 @@ namespace ft
             virtual ~Node() {}
 	};
 
-    template <class T, class Node = ft::Node<T>,
+    template <class T, class Compare, class Node = ft::Node<T>,
 			class Node_Alloc = std::allocator<Node> >
 	class avl_tree
 	{
@@ -69,15 +69,16 @@ namespace ft
 			typedef avl_tree  self;
 			typedef self&   self_reference;
 			typedef T   value_type;
+            typedef Compare key_compare;
 			typedef Node node_type;
 			typedef Node*  node_pointer;
 			typedef Node_Alloc  node_alloc;
-			typedef typename ft::avl_tree_iterator<Node> iterator;
-			typedef typename ft::avl_tree_const_iterator<Node> const_iterator;
+			typedef typename ft::avl_tree_iterator<node_type, key_compare> iterator;
+			typedef typename ft::avl_tree_const_iterator<node_type, key_compare> const_iterator;
 			typedef size_t size_type;
 
-			avl_tree (const node_alloc& alloc = node_alloc())
-			: alloc(alloc)
+			avl_tree (const node_alloc& alloc = node_alloc(), const key_compare& comp = key_compare())
+			: alloc(alloc), comp(comp)
 			{
 				this->root = NULL;
                 this->super_root = this->alloc.allocate(1);
@@ -99,6 +100,7 @@ namespace ft
                     this->alloc = at.alloc;
                     this->super_root = at.super_root;
                     this->parent = at.parent;
+                    this->comp = comp;
                 }
 				return (*this);
             }
@@ -158,7 +160,8 @@ namespace ft
                 return y;
             }
 
-            node_pointer rightRotate (node_pointer z) {
+            node_pointer rightRotate (node_pointer z)
+            {
                 node_pointer y = z->left;
                 node_pointer T2 = y->right;
 
@@ -204,19 +207,19 @@ namespace ft
                 int bFactor = getBalanceFactor(node);
 
                 // LL Case
-                if (bFactor > 1 && key.first < node->left->value.first)
+                if (bFactor > 1 && comp(key.first, node->left->value.first)) // bFactor > 1 && key.first < node->left->value.first
                     return rightRotate(node);
                 // RR Case
-                if (bFactor < -1 && key.first > node->right->value.first)
+                if (bFactor < -1 && comp(node->right->value.first, key.first)) // bFactor < -1 && key.first > node->right->value.first
                     return leftRotate(node);
                 // LR Case
-                if (bFactor > 1 && key.first > node->left->value.first)
+                if (bFactor > 1 && comp(node->left->value.first, key.first)) // bFactor > 1 && key.first > node->left->value.first
                 {
                     node->left = leftRotate(node->left);
                     return rightRotate(node);
                 }
                 // RL Case
-                if (bFactor < -1 && key.first < node->right->value.first)
+                if (bFactor < -1 && comp(key.first, node->right->value.first)) // bFactor < -1 && key.first < node->right->value.first
                 {
                     node->right = rightRotate(node->right);
                     return leftRotate(node);
@@ -231,12 +234,12 @@ namespace ft
                 // 삽입 수행
                 if (root == NULL)
                     return new_node(key);
-                if (key.first > root->value.first)
+                if (comp(root->value.first, key.first)) // key.first > root->value.first
                 {
                     this->parent = root; // 임시 저장
                     root->right = insert(root->right, key);
                 } 
-                else if (key.first < root->value.first)
+                else if (comp(key.first, root->value.first)) // key.first < root->value.first
                 {
                     this->parent = root; // 임시 저장
                     root->left = insert(root->left, key);
@@ -321,16 +324,16 @@ namespace ft
             }
 
             // 제거 함수
-            node_pointer remove(node_pointer root, typename value_type::first_type key)
+            node_pointer remove(node_pointer root, typename value_type::first_type key) // 수정 -> value_type::first_type key
             {
                 if (root == NULL)
                     return root;
-                if (key > root->value.first)
+                if (comp(root->value.first, key)) // key > root->value.first
                 {
                     this->parent = root;
                     root->right = remove(root->right, key);
                 }
-                else if (key < root->value.first)
+                else if (comp(key, root->value.first)) // key < root->value.first
                 {
                     this->parent = root;
                     root->left = remove(root->left, key);
@@ -423,8 +426,6 @@ namespace ft
                 src->right = right;
                 src->parent = parent;
                 src->height = height;
-
-
             }
 
             /*
@@ -465,7 +466,7 @@ namespace ft
             }
 
             // 트리 출력 (루트가 왼쪽부터 출력됨, 디버깅용)
-            void display(node_pointer root, node_pointer node, int level) //const
+            void display(node_pointer root, node_pointer node, int level) const
             {
                 int i;
                 // 현재 트리가 비어있지 않은 경우입니다.
@@ -517,6 +518,7 @@ namespace ft
                 node_pointer super_root;
                 node_pointer parent;
 				node_alloc alloc;
+                key_compare comp;
 	};
 
 };
