@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   iterator.hpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/12/06 15:44:10 by dohelee           #+#    #+#             */
+/*   Updated: 2021/12/06 16:18:31 by dohelee          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef ITERATOR_HPP
 # define ITERATOR_HPP
 
@@ -5,10 +17,7 @@
 
 namespace ft
 {
-	//issue : ptrdiff_t -> std::ptrdiff_t 변경 (-std=c++98 옵션이 문제로 보임, vector도 마찬가지)
-	
 	//////////////////////////iterator tags///////////////////////////////
-	
 	struct input_iterator_tag { };
 	struct output_iterator_tag { };
 	struct forward_iterator_tag : public input_iterator_tag { };
@@ -16,10 +25,9 @@ namespace ft
 	struct random_access_iterator_tag : public bidirectional_iterator_tag { };
 
 	//////////////////////////iterator base class///////////////////////////////
-
 	template <class Category,			// iterator::iterator_category
 			class T,					// iterator::value_type
-			class Distance = std::ptrdiff_t,	// iterator::difference_type
+			class Distance = ptrdiff_t,	// iterator::difference_type
 			class Pointer = T*,			// iterator::pointer
 			class Reference = T&>		// iterator::reference
 	struct iterator
@@ -32,7 +40,6 @@ namespace ft
 	};
 
 	//////////////////////////iterator_traits class///////////////////////////////
-
 	template <class Iter>
 	struct iterator_traits
 	{
@@ -48,7 +55,7 @@ namespace ft
 	{
 		typedef random_access_iterator_tag	iterator_category;
 		typedef T							value_type;
-		typedef typename std::ptrdiff_t					difference_type;
+		typedef ptrdiff_t					difference_type;
 		typedef T*							pointer;
 		typedef T&							reference;
 	};
@@ -58,19 +65,12 @@ namespace ft
 	{
 		typedef random_access_iterator_tag	iterator_category;
 		typedef T							value_type;
-		typedef typename std::ptrdiff_t					difference_type;
+		typedef ptrdiff_t					difference_type;
 		typedef const T*					pointer;
 		typedef const T&					reference;
 	};
 
 	///////////////////////////////normal_iterator///////////////////////////////
-	/*
-		reference 에서는 iterator의 base class만 명시되어 있고,
-		해당 normal_iterator에 대해선 명시가 되어있지 않음(normal_iterator : STL에서 직접적으로 iterator 사용되는 클래스)
-		(단, reverse_iterator에 대해선 명시가 되어 있음)
-		해당 클래스는 <iterator>를 헤더 참고 하여 작성되었음
-	*/
-
 	template<typename Iterator, typename Container>
 	class normal_iterator
 	{		
@@ -223,7 +223,6 @@ namespace ft
 	{ return normal_iterator<Iterator, Container>(i.base() + n); }
 
 	///////////////////////////////reverse_iterator///////////////////////////////
-
 	template<typename Iterator>
 	class reverse_iterator
 	: public iterator<typename iterator_traits<Iterator>::iterator_category,
@@ -431,7 +430,6 @@ namespace ft
 	}
 
 	//////////////////////////back_insert_iterator//////////////////////////
-
 	template <class Container>
 	class back_insert_iterator :
 		public iterator<output_iterator_tag,void,void,void,void>
@@ -453,7 +451,6 @@ namespace ft
 	};
 
 	/////////////////////////front_insert_iterator//////////////////////////
-
 	template <class Container>
 	class front_insert_iterator :
 		public iterator<output_iterator_tag,void,void,void,void>
@@ -498,7 +495,7 @@ namespace ft
 		};
 
 	/////////////////////////istream_iterator///////////////////////////////
-	template <class T, class charT=char, class traits=std::char_traits<charT>, class Distance=std::ptrdiff_t>
+	template <class T, class charT=char, class traits=std::char_traits<charT>, class Distance=ptrdiff_t>
 	class istream_iterator :
 		public iterator<input_iterator_tag, T, Distance, const T*, const T&>
 	{
@@ -629,8 +626,6 @@ namespace ft
 
 	
 	///////////////////////////////Functions///////////////////////////////
-	// Functions 테스트 필요
-
 	template<class It, class Distance>
 	void advance(It& it, Distance n)
 	{

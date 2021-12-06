@@ -6,22 +6,23 @@
 #    By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/09/23 21:59:27 by dohelee           #+#    #+#              #
-#    Updated: 2021/10/18 07:43:43 by dohelee          ###   ########.fr        #
+#    Updated: 2021/12/06 19:48:48 by dohelee          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = clang++
-CFLAGS = -std=c++98 -g #-Wall -Wextra -Werror 
+CFLAGS = -std=c++98 -g -Wall -Wextra -Werror -fsanitize=address
 
-NAME = main
+NAME = test
 
 SRCS_DIR = srcs/
-SRCS = main.cpp
+#SRCS =  main.cpp // doesn't work on mac
+SRCS =  vector_performance.cpp
+#SRCS =  map_performance.cpp 
 
 OBJS_DIR = 	objs/
 OBJ = $(SRCS:.cpp=.o)
 OBJS = $(addprefix $(OBJS_DIR), $(OBJ))
-
 
 $(OBJS_DIR)%.o : $(SRCS_DIR)%.cpp
 	@mkdir -p $(OBJS_DIR)

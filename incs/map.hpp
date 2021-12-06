@@ -6,7 +6,7 @@
 /*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 01:57:45 by dohelee           #+#    #+#             */
-/*   Updated: 2021/10/28 19:52:16 by dohelee          ###   ########.fr       */
+/*   Updated: 2021/12/06 19:39:07 by dohelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "./utils/iterator.hpp"
 # include "./utils/avl_tree.hpp"
 # include "./utils/algorithm.hpp"
+# include "./utils/Node.hpp"
 
 namespace ft
 {
@@ -52,8 +53,8 @@ namespace ft
 			typedef typename allocator_type::const_reference const_reference;
 			typedef typename allocator_type::pointer pointer;
 			typedef typename allocator_type::const_pointer const_pointer;
-			typedef	typename ft::avl_tree<value_type, key_compare>::iterator	iterator;
-			typedef	typename ft::avl_tree<value_type, key_compare>::const_iterator	const_iterator;
+			typedef	typename ft::avl_tree<value_type, allocator_type, key_compare>::iterator	iterator;
+			typedef	typename ft::avl_tree<value_type, allocator_type, key_compare>::const_iterator	const_iterator;
 			typedef	typename ft::reverse_iterator<iterator>	reverse_iterator;
 			typedef	typename ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 			typedef typename ft::iterator_traits<iterator>::difference_type	difference_type;
@@ -92,7 +93,7 @@ namespace ft
 
 			~map()
 			{
-				//아직 미구현
+				this->clear();
 			}
 
 			map& operator= (const map& x)
@@ -101,7 +102,7 @@ namespace ft
 				{
 					this->alloc = allocator_type();
 					this->comp = Compare();
-                    this->avl_tree = ft::avl_tree<value_type, key_compare>();
+                    this->avl_tree = ft::avl_tree<value_type, allocator_type, key_compare>();
                     this->root = NULL;
                     this->insert(x.begin(), x.end());
                 }
@@ -112,7 +113,7 @@ namespace ft
 			iterator begin()
 			{
                 if (root == NULL)
-                    return (this->end());
+                    return iterator(avl_tree.super_root);
                 else
 				    return iterator(avl_tree.min_node(root));
 			}
@@ -120,7 +121,7 @@ namespace ft
 			const_iterator begin() const
 			{
 				if (root == NULL)
-                    return (this->end());
+                    return const_iterator(avl_tree.super_root);
                 else
 				    return const_iterator(avl_tree.min_node(root));
 			}
@@ -242,14 +243,7 @@ namespace ft
             // (1)	erase
             void erase (iterator position)
             {
-                iterator it = this->begin();
-
-                while (it != this->end())
-                {
-                    if (it == position)
-                       root = avl_tree.remove(root, (*it).first);
-                    it++;
-                }
+                root = avl_tree.remove(root, (*position).first);
             }
 
             // (2)	erase
@@ -269,18 +263,18 @@ namespace ft
             void erase (iterator first, iterator last)
             {
                 iterator it = first;
-                //avl_tree.display(root, root, 1);
-                //std::cout << "\n--------target: " << (*it).first << "-------------" << std::endl;
+                // avl_tree.display(root, root, 1);
+                // std::cout << "\n--------target: " << (*it).first << "-------------" << std::endl;
                 while (it != last)
                 {
-                    root = avl_tree.remove(root, (*it).first);
-                    it++;
+                    root = avl_tree.remove(root, (*it++).first);
+                    //it++ // 이렇게 하면 leak이 난다. 제거된 it에서 ++을 시도해서??
                 }
             }
             
             void swap (map& x)
             {
-                ft::avl_tree<value_type, key_compare>    tmp_avl_tree = this->avl_tree;
+                ft::avl_tree<value_type, allocator_type, key_compare>    tmp_avl_tree = this->avl_tree;
                 ft::Node<value_type>       *tmp_root = this->root;
 
                 this->avl_tree = x.avl_tree;
@@ -419,6 +413,7 @@ namespace ft
             // Allocator
             allocator_type get_allocator() const
             {
+                //rebind 된거를 반환해야하는지는 조금 더 고민이 필요함
                 return (this->alloc);
             }
 
@@ -426,7 +421,7 @@ namespace ft
 		private:
 			allocator_type              alloc;
 			Compare                     comp;
-			ft::avl_tree<value_type, key_compare>    avl_tree; // 템플릿 인자를 위해 선언
+			ft::avl_tree<value_type, allocator_type, key_compare>    avl_tree; // 템플릿 인자를 위해 선언
             ft::Node<value_type>       *root;
 	};
 

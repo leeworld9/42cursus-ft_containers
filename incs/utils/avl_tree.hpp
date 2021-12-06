@@ -1,80 +1,47 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   avl_tree.hpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/12/06 15:43:58 by dohelee           #+#    #+#             */
+/*   Updated: 2021/12/06 19:48:02 by dohelee          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef AVL_TREE_HPP
 # define AVL_TREE_HPP
 
 #include <iostream>
 #include "./avl_tree_iterator.hpp"
 #include "./utility.hpp"
+#include "./Node.hpp"
 
 namespace ft
 {
     //reference1 : https://yoongrammer.tistory.com/72
     //reference2 : https://doublesprogramming.tistory.com/237
 
-    template <typename T>
-    struct Node
-    {
-        public :
-            typedef T value_type;
-
-            value_type      value;
-            Node* left;
-            Node* right;
-            Node* parent;
-            int height;
-
-			Node ()
-			:
-				value(),
-				left(NULL),
-				right(NULL),
-                parent(NULL),
-                height(1)
-			{}
-			
-			Node (const value_type& val)
-			:
-				value(val),
-				left(NULL),
-				right(NULL),
-                parent(NULL),
-                height(1)
-			{}
-
-            Node (const Node* copy)
-            {
-                *this = copy;
-            }
-
-			Node &operator=(const Node& nd)
-			{
-				if (*this != &nd)
-				{
-                    this->value = nd.value;
-                    this->left = nd.left;
-                    this->right = nd.right;
-                    this->parent = nd.parent;
-                    this->height = nd.height;
-                }
-				return (*this);
-			}
-            
-            virtual ~Node() {}
-	};
-
-    template <class T, class Compare, class Node = ft::Node<T>,
-			class Node_Alloc = std::allocator<Node> >
+    template <class T, class Alloc, class Compare,
+			  class Node = ft::Node<T> >
 	class avl_tree
 	{
 		public :
-			typedef avl_tree  self;
-			typedef self&   self_reference;
 			typedef T   value_type;
-            typedef Compare key_compare;
+            typedef value_type& reference;
+            typedef value_type const& const_reference;
+            typedef value_type* pointer;
+            typedef value_type const* const_pointer;
 			typedef Node node_type;
-			typedef Node*  node_pointer;
-			typedef Node_Alloc  node_alloc;
-			typedef typename ft::avl_tree_iterator<node_type, key_compare> iterator;
-			typedef typename ft::avl_tree_const_iterator<node_type, key_compare> const_iterator;
+            typedef node_type& node_reference;
+            typedef node_type const& const_node_reference;
+            typedef node_type* node_pointer;
+            typedef node_type const* const_node_pointer;
+			typedef typename Alloc::template rebind<node_type>::other  node_alloc; // rebind
+            typedef Compare key_compare;
+			typedef typename ft::avl_tree_iterator<value_type, node_type, key_compare> iterator;
+			typedef typename ft::avl_tree_const_iterator<const value_type, node_type, key_compare> const_iterator;
 			typedef size_t size_type;
 
 			avl_tree (const node_alloc& alloc = node_alloc(), const key_compare& comp = key_compare())
@@ -105,10 +72,7 @@ namespace ft
 				return (*this);
             }
 
-			virtual ~avl_tree ()
-			{
-				//작성필요
-			}
+			virtual ~avl_tree () { }
 
             int max_height(node_pointer a, node_pointer b)
             {
@@ -354,6 +318,7 @@ namespace ft
                         {
                             this->parent = NULL; // 임시 공간 제거
                         }
+                        alloc.destroy(root);
                         alloc.deallocate(root, 1);
                         root = NULL;
                         return NULL;
@@ -372,6 +337,7 @@ namespace ft
                             tmp->parent = (this->parent);
                             this->parent = NULL; // 임시 공간 제거
                         }
+                        alloc.destroy(root);
                         alloc.deallocate(root, 1);
                         root = NULL;
                         return tmp;
@@ -390,6 +356,7 @@ namespace ft
                             tmp->parent = this->parent;
                             this->parent = NULL; // 임시 공간 제거
                         }
+                        alloc.destroy(root);
                         alloc.deallocate(root, 1);
                         root = NULL;
                         return tmp;
@@ -413,7 +380,7 @@ namespace ft
             }
 
             // value.first가 상수여서 operator= 에서 초기화를 못하기떄문에 새롭게 할당해서 옮긴다.
-            // 기존 노드 주소는 그대로 사용하여야함(즉 deallocate 하면 안됨), 바뀌면 이터레이터 조작에 문제가 생김
+            // 기존 노드 주소는 그대로 사용하여야함(즉, deallocate 하면 안됨), 바뀌면 이터레이터 조작에 문제가 생김
             void value_copy_node(node_pointer src, value_type value)
             {
                 node_pointer left = src->left;
@@ -421,6 +388,7 @@ namespace ft
                 node_pointer parent = src->parent;
                 int height = src->height;
 
+                alloc.destroy(src);
                 this->alloc.construct(src, Node(value));
                 src->left = left;
                 src->right = right;

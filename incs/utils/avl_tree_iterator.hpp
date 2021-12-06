@@ -1,17 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   avl_tree_iterator.hpp                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/12/06 15:46:28 by dohelee           #+#    #+#             */
+/*   Updated: 2021/12/06 19:48:03 by dohelee          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef AVL_TREE_ITERATOR_HPP
 # define AVL_TREE_ITERATOR_HPP
 
 # include <iostream>
 # include "./utility.hpp"
 # include "./iterator.hpp"
+# include "./Node.hpp"
 
 namespace ft
 {
-	template <class T, class Compare>
-	class avl_tree_iterator : ft::iterator<ft::bidirectional_iterator_tag, T>
+	template <class V, class N, class Compare>
+	class avl_tree_iterator : ft::iterator<ft::bidirectional_iterator_tag, N>
 	{
 		public :
-			typedef typename T::value_type    value_type;
+			typedef V    value_type;
             typedef Compare key_compare;
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, value_type>::iterator_category iterator_category;
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, value_type>::difference_type   difference_type;
@@ -22,7 +35,7 @@ namespace ft
 			: node(), comp(comp)
 			{}
 
-			avl_tree_iterator(T * node, const key_compare& comp = key_compare())
+			avl_tree_iterator(N * node, const key_compare& comp = key_compare())
 			: node(node), comp(comp)
 			{}
 
@@ -57,7 +70,7 @@ namespace ft
 
 			avl_tree_iterator& operator++(void)
 			{
-				T* cursor = node;
+				N* cursor = node;
 
 				if (cursor->right != NULL)
 				{
@@ -96,7 +109,7 @@ namespace ft
 
 			avl_tree_iterator& operator--(void)
 			{
-				T* cursor = node;
+				N* cursor = node;
                 
                 if (cursor->left != NULL)
 				{
@@ -128,37 +141,39 @@ namespace ft
 				return (tmp);
 			}
 
-			T*			node; // current node
+			N*			node; // current node
             key_compare comp;
 	};
 
-	template <class T, class Compare>
-	class avl_tree_const_iterator : ft::iterator<ft::bidirectional_iterator_tag, T>
+	template <class V, class N, class Compare>
+	class avl_tree_const_iterator : ft::iterator<ft::bidirectional_iterator_tag, N>
     {
 		public :
-			typedef typename T::value_type    value_type;
+            typedef V   value_type;
             typedef Compare key_compare;
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, value_type>::iterator_category iterator_category;
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, value_type>::difference_type   difference_type;
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, value_type>::pointer   pointer;
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, value_type>::reference reference;
+            typedef avl_tree_iterator<typename N::value_type, N, Compare> non_const_iterator;
 
 			avl_tree_const_iterator(const key_compare& comp = key_compare())
 			: node(), comp(comp)
 			{}
 
-			avl_tree_const_iterator(T * node, const key_compare& comp = key_compare())
+			avl_tree_const_iterator(N* node, const key_compare& comp = key_compare())
 			: node(node), comp(comp)
 			{}
 
 			avl_tree_const_iterator(const avl_tree_const_iterator& copy)
-			{
-				*this = copy;
-			}
+            : node(copy.node), comp(copy.comp)
+		    {}
 
-            // avl_tree_iterator Convert (아무래도 이방법은 아닌거 같긴하지만 임시...)
-            avl_tree_const_iterator(const avl_tree_iterator<T, Compare>& it) : node(it.node), comp(it.comp) {}
-
+            //non_const_iterator -> avl_tree_const_iterator
+            avl_tree_const_iterator(non_const_iterator it)
+            : node(it.node), comp(it.comp) 
+            {}
+            
 			virtual ~avl_tree_const_iterator() { }
 
 			avl_tree_const_iterator &operator=(const avl_tree_const_iterator& avl_it)
@@ -171,12 +186,6 @@ namespace ft
 				return (*this);
 			}
 
-            //이게 키 포인트일꺼 같음
-            operator value_type(void) const
-            {
-			    return value_type(this->value);
-		    }
-
 			bool operator==(const avl_tree_const_iterator& avl_it)
 			{ return (this->node == avl_it.node); }
 
@@ -184,8 +193,8 @@ namespace ft
 			{ return (this->node != avl_it.node); }
 
 			reference operator*() const
-			{ 
-                return (this->node->value); 
+			{
+               return (this->node->value); 
             }
 
 			pointer operator->() const
@@ -195,7 +204,7 @@ namespace ft
 
 			avl_tree_const_iterator& operator++(void)
 			{
-				T* cursor = node;
+				N* cursor = node;
 
 				if (cursor->right != NULL)
 				{
@@ -234,7 +243,7 @@ namespace ft
 
 			avl_tree_const_iterator& operator--(void)
 			{
-				T* cursor = node;
+				N* cursor = node;
                 
                 if (cursor->left != NULL)
 				{
@@ -266,7 +275,7 @@ namespace ft
 				return (tmp);
 			}
 
-			T*			node; // current node
+			N*		    node; // current node
             key_compare comp;
 	};
 }

@@ -1,87 +1,116 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/16 02:28:47 by dohelee           #+#    #+#             */
-/*   Updated: 2021/10/31 08:36:26 by dohelee          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-//#include "../incs/map.hpp"
-#include "../incs/vector.hpp"
-#include "../incs/iterator.hpp"
-#include <vector>
-#include <map>
-#include <stack>
-#include <iterator>
-#include <typeinfo> 
 #include <iostream>
-#include "../incs/etc/binary_search_tree.hpp"
-#include "../incs/utility.hpp"
+#include <string>
+#include <deque>
+#if 1 //CREATE A REAL STL EXAMPLE
+	#include <map>
+	#include <stack>
+	#include <vector>
+	namespace ft = std;
+#else
+	#include <map.hpp>
+	#include <stack.hpp>
+	#include <vector.hpp>
+#endif
 
-int main()
+#include <stdlib.h>
+
+#define MAX_RAM 4294967296 // 가상환경에서는 맞춰서 변경 필요
+#define BUFFER_SIZE 4096
+struct Buffer
 {
-	// STL과 속도 비교하는 테스트 케이스 필요
+	int idx;
+	char buff[BUFFER_SIZE];
+};
 
-	ft::binary_search_tree<ft::pair<std::string, int> > bst;
 
-	bst.insertPair(ft::make_pair("a", 0));
-	bst.insertPair(ft::make_pair("d", 1));
-	bst.insertPair(ft::make_pair("c", 2));
-	bst.insertPair(ft::make_pair("g", 3));
-	bst.insertPair(ft::make_pair("e", 4));
-	bst.insertPair(ft::make_pair("f", 5));
-	bst.insertPair(ft::make_pair("b", 6));
-	bst.insertPair(ft::make_pair("h", 7));
+#define COUNT (MAX_RAM / (int)sizeof(Buffer))
 
-	ft::binary_search_tree<ft::pair<std::string, int> >::iterator it(bst.root_node);
-
-	//이터레이터의 문제가 있음 (++ , -- 다시 확인)
-
-	//begin , end 포함해서 9일텐데... 음...
-	for (int i = 0; i < 9 ; i++)
+template<typename T>
+class MutantStack : public ft::stack<T>
+{
+public:
+	MutantStack() {}
+	MutantStack(const MutantStack<T>& src) { *this = src; }
+	MutantStack<T>& operator=(const MutantStack<T>& rhs) 
 	{
-		std::cout << it.node->value.first << ", " << it.node->value.second << std::endl;
-		it++;
+		this->c = rhs.c;
+		return *this;
 	}
-	std::cout << "---------------" << std::endl;
-	for (int i = 0; i < 9 ; i++)
+	~MutantStack() {}
+
+	typedef typename ft::stack<T>::container_type::iterator iterator;
+
+	iterator begin() { return this->c.begin(); }
+	iterator end() { return this->c.end(); }
+};
+
+int main(int argc, char** argv) {
+	if (argc != 2)
 	{
-		std::cout << it.node->value.first << ", " << it.node->value.second << std::endl;
-		it--;
+		std::cerr << "Usage: ./test seed" << std::endl;
+		std::cerr << "Provide a seed please" << std::endl;
+		std::cerr << "Count value:" << COUNT << std::endl;
+		return 1;
+	}
+	const int seed = atoi(argv[1]);
+	srand(seed);
+
+	ft::vector<std::string> vector_str;
+	ft::vector<int> vector_int;
+	ft::stack<int> stack_int;
+	ft::vector<Buffer> vector_buffer;
+	ft::stack<Buffer, std::deque<int> > stack_deq_buffer;
+	ft::map<int, int> map_int;
+
+	for (int i = 0; i < COUNT; i++)
+	{
+		vector_buffer.push_back(Buffer());
 	}
 
-	std::map<char,int> mymap;
+	for (int i = 0; i < COUNT; i++)
+	{
+		const int idx = rand() % COUNT;
+		vector_buffer[idx].idx = 5;
+	}
+	ft::vector<Buffer>().swap(vector_buffer);
 
-	mymap['b'] = 100;
-	mymap['c'] = 300;
-	mymap['a'] = 200;
-
-
-	std::cout << "---------------" << std::endl;
+	try
+	{
+		for (int i = 0; i < COUNT; i++)
+		{
+			const int idx = rand() % COUNT;
+			vector_buffer.at(idx);
+			std::cerr << "Error: THIS VECTOR SHOULD BE EMPTY!!" <<std::endl;
+		}
+	}
+	catch(const std::exception& e)
+	{
+		//NORMAL ! :P
+	}
 	
-	// show content:
-	std::map<char,int>::iterator mit = mymap.begin();
-	mit--;
-	std::cout << mit->first << " => " << mit->second << '\n';
-	mit++;
-	std::cout << mit->first << " => " << mit->second << '\n';
-	mit++;
-	std::cout << mit->first << " => " << mit->second << '\n';
-	mit++;
-	std::cout << mit->first << " => " << mit->second << '\n';
-	mit++;
-	std::cout << mit->first << " => " << mit->second << '\n';
-	mit++;
-	std::cout << mit->first << " => " << mit->second << '\n';
-	mit++;
-	std::cout << mit->first << " => " << mit->second << '\n';
-	mit++;
-	std::cout << mit->first << " => " << mit->second << '\n';
+	for (int i = 0; i < COUNT; ++i)
+	{
+		map_int.insert(ft::make_pair(rand(), rand()));
+	}
 
-	return 0;
+	int sum = 0;
+	for (int i = 0; i < 10000; i++)
+	{
+		int access = rand();
+		sum += map_int[access];
+	}
+	std::cout << "should be constant with the same seed: " << sum << std::endl;
 
+	{
+		ft::map<int, int> copy = map_int;
+	}
+	MutantStack<char> iterable_stack;
+	for (char letter = 'a'; letter <= 'z'; letter++)
+		iterable_stack.push(letter);
+	for (MutantStack<char>::iterator it = iterable_stack.begin(); it != iterable_stack.end(); it++)
+	{
+		std::cout << *it;
+	}
+	std::cout << std::endl;
+	return (0);
 }
