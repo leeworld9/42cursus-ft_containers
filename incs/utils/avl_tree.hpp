@@ -6,7 +6,7 @@
 /*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/06 15:43:58 by dohelee           #+#    #+#             */
-/*   Updated: 2021/12/06 19:48:02 by dohelee          ###   ########.fr       */
+/*   Updated: 2021/12/07 05:26:42 by dohelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ namespace ft
 			avl_tree (const node_alloc& alloc = node_alloc(), const key_compare& comp = key_compare())
 			: alloc(alloc), comp(comp)
 			{
-				this->root = NULL;
+				this->insert_node = NULL;
                 this->super_root = this->alloc.allocate(1);
 				this->alloc.construct(this->super_root, Node());
                 (this->super_root)->parent = NULL;
@@ -63,7 +63,7 @@ namespace ft
             {
                 if (this != &at)
 				{
-                    this->root = at.root;
+                    this->insert_node = at.insert_node;
                     this->alloc = at.alloc;
                     this->super_root = at.super_root;
                     this->parent = at.parent;
@@ -94,6 +94,7 @@ namespace ft
                 if (tmp->parent == this->super_root) // super_root->left == root
                     (this->super_root)->left = tmp;
                 this->parent = NULL; // 임시 공간 제거
+                this->insert_node = tmp; // 삽입된 노드주소 임시 저장
                 return tmp;
             }
 
@@ -482,7 +483,7 @@ namespace ft
             }
 
 			//private:
-				node_pointer root; // insert 메소드의 리턴값(root node) 저장용도
+				node_pointer insert_node; // 삽입된 노드 주소의 임시 저장소
                 node_pointer super_root;
                 node_pointer parent;
 				node_alloc alloc;

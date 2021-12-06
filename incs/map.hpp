@@ -413,7 +413,6 @@ namespace ft
             // Allocator
             allocator_type get_allocator() const
             {
-                //rebind 된거를 반환해야하는지는 조금 더 고민이 필요함
                 return (this->alloc);
             }
 

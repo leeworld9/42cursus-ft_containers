@@ -27,7 +27,7 @@ namespace ft
 	//////////////////////////iterator base class///////////////////////////////
 	template <class Category,			// iterator::iterator_category
 			class T,					// iterator::value_type
-			class Distance = ptrdiff_t,	// iterator::difference_type
+			class Distance = std::ptrdiff_t,	// iterator::difference_type
 			class Pointer = T*,			// iterator::pointer
 			class Reference = T&>		// iterator::reference
 	struct iterator
@@ -55,7 +55,7 @@ namespace ft
 	{
 		typedef random_access_iterator_tag	iterator_category;
 		typedef T							value_type;
-		typedef ptrdiff_t					difference_type;
+		typedef std::ptrdiff_t					difference_type;
 		typedef T*							pointer;
 		typedef T&							reference;
 	};
@@ -65,7 +65,7 @@ namespace ft
 	{
 		typedef random_access_iterator_tag	iterator_category;
 		typedef T							value_type;
-		typedef ptrdiff_t					difference_type;
+		typedef std::ptrdiff_t					difference_type;
 		typedef const T*					pointer;
 		typedef const T&					reference;
 	};
@@ -495,7 +495,7 @@ namespace ft
 		};
 
 	/////////////////////////istream_iterator///////////////////////////////
-	template <class T, class charT=char, class traits=std::char_traits<charT>, class Distance=ptrdiff_t>
+	template <class T, class charT=char, class traits=std::char_traits<charT>, class Distance=std::ptrdiff_t>
 	class istream_iterator :
 		public iterator<input_iterator_tag, T, Distance, const T*, const T&>
 	{

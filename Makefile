@@ -11,13 +11,13 @@
 # **************************************************************************** #
 
 CC = clang++
-CFLAGS = -std=c++98 -g -Wall -Wextra -Werror -fsanitize=address
+CFLAGS = -std=c++98 -Wall -Wextra -Werror
 
 NAME = test
 
 SRCS_DIR = srcs/
-#SRCS =  main.cpp // doesn't work on mac
-SRCS =  vector_performance.cpp
+SRCS =  main.cpp #doesn't work on mac
+#SRCS =  vector_performance.cpp
 #SRCS =  map_performance.cpp 
 
 OBJS_DIR = 	objs/

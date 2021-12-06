@@ -14,7 +14,6 @@
 # define VECTOR_HPP
 
 # include <iostream>
-
 # include "./utils/iterator.hpp"
 # include "./utils/algorithm.hpp"
 
@@ -365,7 +364,7 @@ namespace ft
 
             void swap (vector& x)
             {
-                if (x == *this)
+                if (&x == this)
                     return;
                 
                 pointer tmp_start = x.start;

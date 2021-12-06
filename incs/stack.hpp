@@ -25,17 +25,17 @@ namespace ft
 			typedef size_t		size_type;
 
 			explicit stack (const container_type& ctnr = container_type()) 
-			: ct(ctnr) {}
+			: c(ctnr) {}
 			
 			~stack() {}
 			
 			// Member functions
-			bool empty() const { return (this->ct.empty()); }
-			size_type size() const { return (this->ct.size()); }
-			value_type& top() { return (this->ct.back()); }
-			const value_type& top() const { return (this->ct.back()); }
-			void push (const value_type& val) { this->ct.push_back(val); }
-			void pop() { this->ct.pop_back(); }
+			bool empty() const { return (this->c.empty()); }
+			size_type size() const { return (this->c.size()); }
+			value_type& top() { return (this->c.back()); }
+			const value_type& top() const { return (this->c.back()); }
+			void push (const value_type& val) { this->c.push_back(val); }
+			void pop() { this->c.pop_back(); }
 
 			//relational operators
 			template <class Tn, class ContainerN>
@@ -57,33 +57,33 @@ namespace ft
 			friend bool operator>= (const ft::stack<Tn, ContainerN>& lhs, const ft::stack<Tn, ContainerN>& rhs);
 
 		protected:
-			container_type ct;
+			container_type c;
 	};
 
 	// Non-member function overloads
 	template <class T, class Container>
 	bool operator== (const ft::stack<T, Container>& lhs, const ft::stack<T, Container>& rhs)
-	{ return (lhs.ct == rhs.ct); }
+	{ return (lhs.c == rhs.c); }
 
 	template <class T, class Container>
 	bool operator!= (const ft::stack<T, Container>& lhs, const ft::stack<T, Container>& rhs)
-	{ return (lhs.ct != rhs.ct); }
+	{ return (lhs.c != rhs.c); }
 
 	template <class T, class Container>
 	bool operator< (const ft::stack<T, Container>& lhs, const ft::stack<T, Container>& rhs)
-	{ return (lhs.ct < rhs.ct); }
+	{ return (lhs.c < rhs.c); }
 
 	template <class T, class Container>
 	bool operator<= (const ft::stack<T, Container>& lhs, const ft::stack<T, Container>& rhs)
-	{ return (lhs.ct <= rhs.ct); }	
+	{ return (lhs.c <= rhs.c); }	
 	
 	template <class T, class Container>
 	bool operator> (const ft::stack<T, Container>& lhs, const ft::stack<T, Container>& rhs)
-	{ return (lhs.ct > rhs.ct); }
+	{ return (lhs.c > rhs.c); }
 
 	template <class T, class Container>
 	bool operator>= (const ft::stack<T, Container>& lhs, const ft::stack<T, Container>& rhs)
-	{ return (lhs.ct >= rhs.ct); }	
+	{ return (lhs.c >= rhs.c); }	
 }
 
 #endif
