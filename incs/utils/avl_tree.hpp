@@ -6,7 +6,7 @@
 /*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/06 15:43:58 by dohelee           #+#    #+#             */
-/*   Updated: 2021/12/07 05:26:42 by dohelee          ###   ########.fr       */
+/*   Updated: 2021/12/07 15:30:08 by dohelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ namespace ft
 			: alloc(alloc), comp(comp)
 			{
 				this->insert_node = NULL;
+                this->exists_node = NULL;
                 this->super_root = this->alloc.allocate(1);
 				this->alloc.construct(this->super_root, Node());
                 (this->super_root)->parent = NULL;
@@ -64,6 +65,7 @@ namespace ft
                 if (this != &at)
 				{
                     this->insert_node = at.insert_node;
+                    this->exists_node = at.exists_node;
                     this->alloc = at.alloc;
                     this->super_root = at.super_root;
                     this->parent = at.parent;
@@ -88,14 +90,14 @@ namespace ft
 
             node_pointer new_node(value_type key)
             {
-                node_pointer tmp = this->alloc.allocate(1);
-				this->alloc.construct(tmp, Node(key));
-                tmp->parent = this->parent;
-                if (tmp->parent == this->super_root) // super_root->left == root
-                    (this->super_root)->left = tmp;
+                node_pointer nw = this->alloc.allocate(1);
+				this->alloc.construct(nw, Node(key));
+                nw->parent = this->parent;
+                if (nw->parent == this->super_root) // super_root->left == root
+                    (this->super_root)->left = nw;
                 this->parent = NULL; // 임시 공간 제거
-                this->insert_node = tmp; // 삽입된 노드주소 임시 저장
-                return tmp;
+                this->insert_node = nw; // 새로 삽입한 노드 주소
+                return nw;
             }
 
             node_pointer leftRotate (node_pointer z)
@@ -210,8 +212,10 @@ namespace ft
                     root->left = insert(root->left, key);
                 }   
                 else
+                {
+                    this->exists_node = root; // 삽입 시도했으나 이미 존재하는 노드 주소
                     return root;
-
+                }
                 // 노드 높이 갱신
                 root->height = 1 + max_height(root->left, root->right);
 
@@ -483,7 +487,8 @@ namespace ft
             }
 
 			//private:
-				node_pointer insert_node; // 삽입된 노드 주소의 임시 저장소
+				node_pointer insert_node; // 새로 삽입한 노드 주소
+                node_pointer exists_node; // 삽입 시도했으나 이미 존재하는 노드 주소
                 node_pointer super_root;
                 node_pointer parent;
 				node_alloc alloc;

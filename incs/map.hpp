@@ -6,7 +6,7 @@
 /*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 01:57:45 by dohelee           #+#    #+#             */
-/*   Updated: 2021/12/06 19:39:07 by dohelee          ###   ########.fr       */
+/*   Updated: 2021/12/07 16:00:36 by dohelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,18 +199,20 @@ namespace ft
 			// (1) insert : single element	
 			pair<iterator, bool> insert (const value_type& val)
 			{
-                //this->avl_tree.display(root, root, 1);
-                //std::cout << std::endl;
+                ft::Node<value_type>       *tmp;
+                root = avl_tree.insert(this->root, val);
                 
-                iterator find = this->find(val.first);
-
-                if (find != this->end())
-                    return (ft::make_pair(find, false));
+                if (avl_tree.insert_node != NULL)
+                {
+                    tmp = avl_tree.insert_node;
+                    avl_tree.insert_node = NULL; // 임시 공간 비우기
+                    return (ft::make_pair(iterator(tmp), true));
+                }  
                 else
                 {
-                    root = avl_tree.insert(this->root, val);
-                    find = this->find(val.first);
-				    return (ft::make_pair(find, true));
+                    tmp = avl_tree.exists_node;
+                    avl_tree.exists_node = NULL; // 임시 공간 비우기
+				    return (ft::make_pair(iterator(tmp), false));
                 }
 			}
 
@@ -224,8 +226,7 @@ namespace ft
                         return (it);
                     it++;
                 }
-                root = avl_tree.insert(root, val);
-                return (this->find(val.first));
+                return (this->insert(val).first);
             }
 
 			// (3) insert : range	
