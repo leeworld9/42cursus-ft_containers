@@ -6,7 +6,7 @@
 /*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 01:57:42 by dohelee           #+#    #+#             */
-/*   Updated: 2021/12/06 15:48:06 by dohelee          ###   ########.fr       */
+/*   Updated: 2021/12/07 16:24:44 by dohelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -453,7 +453,6 @@ namespace ft
                 size_type pos_len = &(*position) - this->start;
                 if (this->capacity() >= this->size() + n)
                 {
-                    //뒤에서 부터 옮겨야함 (앞에서 부터 하면 덮어 씌워지는 경우가 있음)
                     for (size_type i = this->size() - pos_len; i > 0; i--)
                         this->alloc.construct(&(*position) + n + (i - 1), *(position + i - 1));
                     while(n--)

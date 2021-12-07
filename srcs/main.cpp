@@ -16,7 +16,7 @@
 #include <ctime>
 #include <ios>
 
-#define MAX_RAM 4294967296 / 4 // 가상환경에서는 맞춰서 변경 필요
+#define MAX_RAM 4294967296/4 // 가상환경에서는 맞춰서 변경 필요
 #define BUFFER_SIZE 4096
 struct Buffer
 {
@@ -26,12 +26,6 @@ struct Buffer
 
 
 #define COUNT (MAX_RAM / (int)sizeof(Buffer))
-
-void show_time(std::string msg, clock_t start, clock_t finish)
-{
-    double duration = (double)(finish - start) / CLOCKS_PER_SEC;
-    std::cout << "[" << msg << duration << "초]" << std::endl;
-}
 
 template<typename T>
 class MutantStack : public ft::stack<T>
@@ -69,11 +63,7 @@ int main(int argc, char** argv) {
 	ft::vector<Buffer> vector_buffer;
 	ft::stack<Buffer, std::deque<int> > stack_deq_buffer;
 	ft::map<int, int> map_int;
-	clock_t start, finish;
-	std::cout << std::fixed;
 
-	start = clock();
-	std::cout <<"=====vector chk start=====" <<std::endl;
 	for (int i = 0; i < COUNT; i++)
 	{
 		vector_buffer.push_back(Buffer());
@@ -81,13 +71,11 @@ int main(int argc, char** argv) {
 
 	for (int i = 0; i < COUNT; i++)
 	{
-		
 		const int idx = rand() % COUNT;
 		vector_buffer[idx].idx = 5;
-		
 	}
 	ft::vector<Buffer>().swap(vector_buffer);
-	
+
 	try
 	{
 		for (int i = 0; i < COUNT; i++)
@@ -101,16 +89,10 @@ int main(int argc, char** argv) {
 	{
 		//NORMAL ! :P
 	}
-	finish = clock();
-    show_time("vector time : ", start, finish);
-
-	start = clock();
-	std::cout <<"=====map chk start=====" <<std::endl;
+	
 	for (int i = 0; i < COUNT; ++i)
 	{
-		int idx = rand();
-		map_int.insert(ft::make_pair(idx, rand()));
-		std::cout << "map insert[" << i << "] : " << map_int[idx] << std::endl;
+		map_int.insert(ft::make_pair(rand(), rand()));
 	}
 
 	int sum = 0;
@@ -124,11 +106,6 @@ int main(int argc, char** argv) {
 	{
 		ft::map<int, int> copy = map_int;
 	}
-	finish = clock();
-    show_time("map time : ", start, finish);
-
-	start = clock();
-	std::cout <<"=====stack chk start=====" <<std::endl;
 	MutantStack<char> iterable_stack;
 	for (char letter = 'a'; letter <= 'z'; letter++)
 		iterable_stack.push(letter);
@@ -136,8 +113,6 @@ int main(int argc, char** argv) {
 	{
 		std::cout << *it;
 	}
-	finish = clock();
-    show_time("stack time : ", start, finish);
-	//std::cout << std::endl;
+	std::cout << std::endl;
 	return (0);
 }

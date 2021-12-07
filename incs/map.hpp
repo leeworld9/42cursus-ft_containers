@@ -6,7 +6,7 @@
 /*   By: dohelee <dohelee@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 01:57:45 by dohelee           #+#    #+#             */
-/*   Updated: 2021/12/07 16:00:36 by dohelee          ###   ########.fr       */
+/*   Updated: 2021/12/07 16:24:08 by dohelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,6 @@ namespace ft
 				return const_iterator(avl_tree.super_root);
 			}
 
-			// 아래 reverse_iterator들은 확인 필요
 			reverse_iterator rbegin() 
 			{ 
 				return reverse_iterator(this->end());
@@ -167,15 +166,11 @@ namespace ft
 
             size_type size() const
             {
-                //this->avl_tree.display(root, root, 1);
-                //std::cout << std::endl;
-
                 int cnt = 0;
                 const_iterator it = this->begin();
 
                 while (it != this->end())
                 {
-                    //std::cout << "test : " << (*it).first << std::endl;
                     cnt++;
                     it++;
                 }
@@ -184,8 +179,7 @@ namespace ft
 
             size_type max_size() const
             {
-                return (this->avl_tree.alloc.max_size());
-                //위와 동일한 값
+                return (this->avl_tree.alloc.max_size()); // 아래와 값이 동일함
                 //return (std::numeric_limits<size_type>::max() / sizeof(ft::Node<value_type>));
             }
 
@@ -264,12 +258,9 @@ namespace ft
             void erase (iterator first, iterator last)
             {
                 iterator it = first;
-                // avl_tree.display(root, root, 1);
-                // std::cout << "\n--------target: " << (*it).first << "-------------" << std::endl;
                 while (it != last)
                 {
                     root = avl_tree.remove(root, (*it++).first);
-                    //it++ // 이렇게 하면 leak이 난다. 제거된 it에서 ++을 시도해서??
                 }
             }
             
@@ -353,7 +344,7 @@ namespace ft
 
                 while (it != this->end())
                 {
-                    if (!this->comp((*it).first, k)) // it.frist <= k
+                    if (!this->comp((*it).first, k))
                         return (it);
                     it++;
                 }
